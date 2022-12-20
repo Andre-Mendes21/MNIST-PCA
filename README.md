@@ -8,3 +8,5 @@ This small project uses the PCA algorithmn with both euclidean and Mahalanobis d
 
 ## Usage
 
+## References
+- http://colah.github.io/posts/2014-10-Visualizing-MNIST/
