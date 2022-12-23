@@ -9,7 +9,7 @@ This small project uses the PCA algorithmn with both euclidean and Mahalanobis d
 ## Usage
 
 ## TODO
-- [ ] Reading data from MNIST Dataset
+- [x] Reading data from MNIST Dataset
 - [ ] Define the principal components of the data
 - [ ] Implement euclidean and Mahalanobis distances
 - [ ] Test the model  
