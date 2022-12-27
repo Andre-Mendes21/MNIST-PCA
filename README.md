@@ -15,3 +15,4 @@ This small project uses the PCA algorithmn with both euclidean and Mahalanobis d
 - [ ] Test the model  
 ## References
 - http://colah.github.io/posts/2014-10-Visualizing-MNIST/
+- http://www.cs.otago.ac.nz/cosc453/student_tutorials/principal_components.pdf
