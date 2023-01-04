@@ -14,7 +14,7 @@ class PCA:
         self.goal_confidence = goal_confidence
         self.k = k
 
-    def find_elbow(self, trace):
+    def __find_elbow(self, trace):
         confidence = 0.0
         k = 0
         while confidence < self.goal_confidence:
@@ -22,13 +22,13 @@ class PCA:
             k += 1
         return k, confidence
 
-    def calc_confidence(self, trace):
+    def __calc_confidence(self, trace):
         confidence = 0
         for i in range(self.k):
             confidence += self.all_eigen_vals[i] / trace
         return confidence
 
-    def calc_coeficiente_proj(self, centred_X):
+    def __calc_coeficiente_proj(self, centred_X):
         return [np.dot(centred_X[i], self.e_digits) for i in range(self.X_len)]
 
     def pca(self):
@@ -39,13 +39,13 @@ class PCA:
         trace = sum(self.all_eigen_vals)
 
         if self.k is None:
-            self.k, self.confidence = self.find_elbow(trace)
+            self.k, self.confidence = self.__find_elbow(trace)
         else:
-            self.confidence = self.calc_confidence(trace)
+            self.confidence = self.__calc_confidence(trace)
         print(f'k: {self.k}\nconfidence: {self.confidence}\n')
 
         self.eigen_vals = self.all_eigen_vals[:self.k]
-        self.coef_proj = self.calc_coeficiente_proj(centred_X)
+        self.coef_proj = self.__calc_coeficiente_proj(centred_X)
 
 
 def show_eigen_vals(pca: PCA):
