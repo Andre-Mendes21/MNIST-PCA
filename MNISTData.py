@@ -27,3 +27,9 @@ def showMNIST(X, y, n_samples):
         ax.set_title('Label: {}'.format(labels[i]))
     plt.tight_layout()
     plt.show()
+
+
+def showDigit(X, i):
+    plt.subplot(50)
+    plt.imshow(X[i].reshape(28, 28), cmap=plt.get_cmap('gray'))
+    plt.show()
