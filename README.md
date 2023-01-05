@@ -3,11 +3,16 @@
 This small project uses the PCA algorithmn with both euclidean and Mahalanobis distances to classify and recognize digits in the [MNIST Database](http://yann.lecun.com/exdb/mnist/).
 
 ## Setup
-
-
+```console
+python -m venv .env
+source .env/Scripts/activate
+pip install numpy matplotlib
+```
 
 ## Usage
-
+```console
+python main.py
+```
 ## TODO
 - [x] Reading data from MNIST Dataset
 - [x] Define the principal components of the data
