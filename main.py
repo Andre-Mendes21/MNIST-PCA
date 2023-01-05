@@ -39,7 +39,7 @@ class PCA:
             self.k, self.confidence = self.__find_elbow(trace)
         else:
             self.confidence = self.__calc_confidence(trace)
-        print(f'k: {self.k}\nconfidence: {self.confidence}\n')
+        print(f'k: {self.k}\nconfidence: {self.confidence}')
 
         self.eigen_vals = self.all_eigen_vals[:self.k]
         self.inv_eigen_val = [np.double(1/val) for val in self.eigen_vals]
@@ -59,7 +59,7 @@ def show_eigen_vals(pca: PCA):
 
 
 def euclidean_dist(pca: PCA, coef_proj, test_coef_proj):
-    return linalg.norm(coef_proj[i] - test_coef_proj)
+    return linalg.norm(coef_proj - test_coef_proj)
 
 
 def mahalanobis_dist(pca: PCA, coef_proj, test_coef_proj):
@@ -76,6 +76,28 @@ def identify(pca: PCA, test_X, train_y, dist_func):
     return train_y[d_arg_min], d_min
 
 
+def scorer(test_X, test_y, dist_func):
+    preds = []; dists = [];
+    tests_passed = 0
+    for i in range(len(test_y)):
+        pred, d_min = identify(pca, test_X[i], train_y, dist_func)
+        preds.append(pred)
+        if test_y[i] != pred:
+            dists.append(d_min)
+            avg_dist = np.mean(dists)
+            print(f'i: {i} dist: {d_min} avg_dist: {avg_dist} expected: {test_y[i]} got: {pred}')
+        else:
+            tests_passed += 1
+    score = (tests_passed / len(test_y)) * 100
+    return score, preds
+
+
+def confusion_matrix(test_y, predictions):
+    conf_mat = np.zeros((10, 10), np.uint32)
+    for i in range(len(predictions)):
+        conf_mat[test_y[i]][predictions[i]] += 1
+    return conf_mat
+
 if __name__ == '__main__':
     train_X, train_y = MNISTData.loadMNIST('data/training/train-images.idx3-ubyte',
                                         'data/training/train-labels.idx1-ubyte')
@@ -83,23 +105,12 @@ if __name__ == '__main__':
                                         'data/test/t10k-labels.idx1-ubyte')
     test_len = len(test_X)
 
-    pca = PCA(train_X, GOAL_CONFIDENCE, 28)
+    pca = PCA(train_X, GOAL_CONFIDENCE, 44)
     pca.pca()
-    dists = []
-    tests_passed = 0
-    for i in range(test_len):
-        pred, d_min = identify(pca, test_X[i], train_y, mahalanobis_dist)
-        if test_y[i] != pred:
-            dists = np.append(dists, d_min)
-            avg_dist = np.mean(dists)
-            print(f'dist: {d_min} avg_dist: {avg_dist} i: {i} expected: {test_y[i]} got: {pred}')
-            # MNISTData.showDigit(test_X, test_y, i, "Test X\nExpected")
-            # MNISTData.showDigit(pca.X, train_y, d_arg_min, "Training X\nGot")
-            # plt.show()
-        else:
-            tests_passed += 1
-            current_percent = tests_passed / test_len
-            # MNISTData.showDigit(test_X, i)
-            # MNISTData.showDigit(train_X, d_arg_min)
+    euc_score, euc_preds = scorer(test_X, test_y, euclidean_dist)
+    euc_confusion = confusion_matrix(test_y, euc_preds)
+    mah_score, mah_preds = scorer(test_X, test_y, mahalanobis_dist)
+    mah_confusion = confusion_matrix(test_y, mah_preds)
 
-    print(f'Passed Tests: {current_percent * 100}%')
+    print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n')
+    print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}')
