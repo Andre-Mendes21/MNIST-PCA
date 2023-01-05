@@ -28,13 +28,10 @@ class PCA:
             confidence += self.all_eigen_vals[i] / trace
         return confidence
 
-    def __calc_coeficiente_proj(self, centred_X):
-        return [np.dot(centred_X[i], self.e_digits) for i in range(self.X_len)]
-
     def pca(self):
         self.mean_X = np.mean(self.X, 0)
         centred_X = self.X - self.mean_X
-        self.e_digits, singular_values, _ = linalg.svd(centred_X.transpose(), full_matrices=False)
+        _, singular_values, self.v = linalg.svd(centred_X, full_matrices=False)
         self.all_eigen_vals = singular_values * singular_values
         trace = sum(self.all_eigen_vals)
 
@@ -45,7 +42,10 @@ class PCA:
         print(f'k: {self.k}\nconfidence: {self.confidence}\n')
 
         self.eigen_vals = self.all_eigen_vals[:self.k]
-        self.coef_proj = self.__calc_coeficiente_proj(centred_X)
+        self.inv_eigen_val = [np.double(1/val) for val in self.eigen_vals]
+        self.diag_inv_eigen_val = np.diag(self.inv_eigen_val)
+        self.eigen_vecs = self.v[:self.k]
+        self.coef_proj = np.matmul(centred_X, self.eigen_vecs.T)
 
 
 def show_eigen_vals(pca: PCA):
@@ -58,29 +58,22 @@ def show_eigen_vals(pca: PCA):
     plt.show()
 
 
-def euclidean_dist(pca: PCA, test_coef_proj):
-    return [linalg.norm(pca.coef_proj[i] - test_coef_proj) for i in range(pca.X_len)]
+def euclidean_dist(pca: PCA, coef_proj, test_coef_proj):
+    return linalg.norm(coef_proj[i] - test_coef_proj)
 
 
-def mahalanobis_dist(pca: PCA, test_coef_proj):
-    dists = []
-    dist = 0
-    for i in range(pca.X_len):
-        for j in range(pca.k):
-            inv_eigen_val = 1/pca.eigen_vals[j]
-            diff_sqr = np.square(pca.coef_proj[i][j] - test_coef_proj[j])
-            dist += inv_eigen_val * diff_sqr
-        dists = np.append(dists, dist)
-    return dists
+def mahalanobis_dist(pca: PCA, coef_proj, test_coef_proj):
+    diff = coef_proj - test_coef_proj
+    return np.matmul((np.matmul(pca.diag_inv_eigen_val, diff)).T, diff)
 
 
-def identify(pca: PCA, test_X, dist_func):
+def identify(pca: PCA, test_X, train_y, dist_func):
     centred_test_X = test_X - pca.mean_X
-    test_coef_prof = np.dot(centred_test_X, pca.e_digits)
-    dist = dist_func(pca, test_coef_prof)
+    test_coef_prof = np.dot(centred_test_X, pca.eigen_vecs.T)
+    dist = [dist_func(pca, pca.coef_proj[i], test_coef_prof) for i in range(pca.X_len)]
     d_min = np.min(dist)
     d_arg_min = np.argmin(dist)
-    return d_min, d_arg_min
+    return train_y[d_arg_min], d_min
 
 
 if __name__ == '__main__':
@@ -95,19 +88,18 @@ if __name__ == '__main__':
     dists = []
     tests_passed = 0
     for i in range(test_len):
-        d_min, d_arg_min = identify(pca, test_X[i], mahalanobis_dist)
-        if test_y[i] != train_y[d_arg_min]:
+        pred, d_min = identify(pca, test_X[i], train_y, mahalanobis_dist)
+        if test_y[i] != pred:
             dists = np.append(dists, d_min)
             avg_dist = np.mean(dists)
-            print(f'dist: {d_min} avg_dist: {avg_dist} i: {i} expected: {test_y[i]} got: {train_y[d_arg_min]}')
-            MNISTData.showDigit(test_X, test_y, i, "Test X\nExpected")
-            MNISTData.showDigit(pca.X, train_y, d_arg_min, "Training X\nGot")
-            plt.show()
+            print(f'dist: {d_min} avg_dist: {avg_dist} i: {i} expected: {test_y[i]} got: {pred}')
+            # MNISTData.showDigit(test_X, test_y, i, "Test X\nExpected")
+            # MNISTData.showDigit(pca.X, train_y, d_arg_min, "Training X\nGot")
+            # plt.show()
         else:
             tests_passed += 1
             current_percent = tests_passed / test_len
             # MNISTData.showDigit(test_X, i)
             # MNISTData.showDigit(train_X, d_arg_min)
-            print(f'i: {i} Current Percent: {current_percent * 100}')
 
     print(f'Passed Tests: {current_percent * 100}%')
