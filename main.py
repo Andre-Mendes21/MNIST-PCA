@@ -86,20 +86,24 @@ if __name__ == '__main__':
                                         'data/training/train-labels.idx1-ubyte')
     test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte', 
                                         'data/test/t10k-labels.idx1-ubyte')
+    test_len = len(test_X)
 
     pca = PCA(train_X, GOAL_CONFIDENCE, 3)
     pca.pca()
     dists = []
     tests_passed = 0
-    for i in range(len(test_X)):
+    for i in range(test_len):
         d_min, d_arg_min = identify(pca, test_X[i], euclidean_dist)
         if test_y[i] != train_y[d_arg_min]:
             dists = np.append(dists, d_min)
             avg_dist = np.mean(dists)
             print(f'dist: {d_min} avg_dist: {avg_dist} i: {i} expected: {test_y[i]} got: {train_y[d_arg_min]}')
+            MNISTData.showDigit(test_X, test_y, i, "Test X\nExpected")
+            MNISTData.showDigit(pca.X, train_y, d_arg_min, "Training X\nGot")
+            plt.show()
         else:
             tests_passed += 1
-            current_percent = tests_passed / (len(test_X))
+            current_percent = tests_passed / test_len
             # MNISTData.showDigit(test_X, i)
             # MNISTData.showDigit(train_X, d_arg_min)
             print(f'i: {i} Current Percent: {current_percent * 100}')
