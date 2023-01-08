@@ -18,18 +18,19 @@ def showMNIST(X, y, n_samples):
     images = X[:n_samples]
     labels = y[:n_samples]
 
-    num_row = 2
-    num_col = n_samples//2
-    fig, axes = plt.subplots(num_row, num_col, figsize=(1.5*num_col, 2*num_row))
+    num_col = 4
+    num_row = n_samples//num_col + 1
+    fig, axes = plt.subplots(num_row, num_col)
     for i in range(n_samples):
-        ax = axes[i//num_col, i % num_col]
-        ax.imshow(images[i].reshape(28, 28), cmap='gray_r')
+        ax = axes[i // num_col, i % num_col]
+        ax.imshow(images[i].reshape(28, 28), cmap='gray')
         ax.set_title('Label: {}'.format(labels[i]))
+        ax.axis('off')
     plt.tight_layout()
     plt.show()
 
 
-def showDigit(X, y, i, window_name):
+def showDigit(X, y, window_name):
     plt.figure()
-    plt.imshow(X[i].reshape(28, 28), cmap=plt.get_cmap('gray'))
-    plt.title('{} label: {}'.format(window_name, y[i]))
+    plt.imshow(X.reshape(28, 28), cmap=plt.get_cmap('gray'))
+    plt.title('{} label: {}'.format(window_name, y))
