@@ -23,6 +23,7 @@ $ python main.py
 - [x] Define the principal components of the data
 - [x] Implement euclidean and Mahalanobis distances
 - [x] Test the model with MNIST test data
+- [x] Plotting PCA and eigen vectors
 - [ ] Test model with non-MNIST data (e.g. letters, noise, etc.)
 
 
