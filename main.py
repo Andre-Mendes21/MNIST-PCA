@@ -1,4 +1,5 @@
 import MNISTData
+import noise
 import numpy as np
 import numpy.linalg as linalg
 import matplotlib.pyplot as plt
@@ -60,6 +61,7 @@ def show_eigen_vals(pca: PCA):
 
 def show_mean(pca: PCA):
     plt.imshow(np.reshape(pca.mean_X, (28, 28)), cmap=plt.get_cmap('gray'))
+    plt.show()
 
 
 def show_eigen_vecs(pca: PCA):
@@ -69,6 +71,7 @@ def show_eigen_vecs(pca: PCA):
     for i in range(1, pca.k + 1):
         fig.add_subplot(rows, cols, i)
         plt.imshow(np.reshape(pca.eigen_vecs[i - 1], (28, 28)), cmap=plt.get_cmap('gray'))
+    plt.show()
 
 
 def plot_digits_3D(pca: PCA, y):
@@ -88,6 +91,7 @@ def plot_digits_3D(pca: PCA, y):
     ax.set_xlabel('pca-one')
     ax.set_ylabel('pca-two')
     ax.set_zlabel('pca-three')
+    plt.show()
 
 
 def euclidean_dist(pca: PCA, coef_proj, test_coef_proj):
@@ -136,18 +140,26 @@ if __name__ == '__main__':
                                         'data/training/train-labels.idx1-ubyte')
     test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte', 
                                         'data/test/t10k-labels.idx1-ubyte')
-    test_len = len(test_X)
-
+    noisy_X, noisy_y = noise.noisey_MNIST('data/test/t10k-images.idx3-ubyte', 
+                                            'data/test/t10k-labels.idx1-ubyte')
+    MNISTData.showMNIST(noisy_X[10:], noisy_y[10:], 10)
     pca = PCA(train_X, GOAL_CONFIDENCE, 10)
     pca.pca()
     show_mean(pca)
     show_eigen_vecs(pca)
     plot_digits_3D(pca, train_y)
-    plt.show()
-    euc_score, euc_preds, err_euc_preds = scorer(test_X[:500], test_y[:500], euclidean_dist)
-    euc_confusion = confusion_matrix(test_y[:500], euc_preds)
-    mah_score, mah_preds, err_mah_preds = scorer(test_X[:500], test_y[:500], mahalanobis_dist)
-    mah_confusion = confusion_matrix(test_y[:500], mah_preds)
 
-    print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n')
-    print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}')
+    euc_score, euc_preds = scorer(test_X, test_y, euclidean_dist)
+    euc_confusion = confusion_matrix(test_y, euc_preds)
+    euc_noise_score, euc_noise_preds = scorer(noisy_X, noisy_y, euclidean_dist)
+    euc_noise_confusion = confusion_matrix(noisy_y, euc_noise_preds)
+
+    mah_score, mah_preds = scorer(test_X, test_y, mahalanobis_dist)
+    mah_confusion = confusion_matrix(test_y, mah_preds)
+    mah_noise_score, mah_noise_preds = scorer(noisy_X, noisy_y, mahalanobis_dist)
+    mah_noise_confusion = confusion_matrix(noisy_y, mah_noise_preds)
+
+    print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n',
+          f'Noise Euclidean Dist Score: {euc_noise_score}%\n{euc_noise_confusion}\n')
+    print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}\n',
+          f'Noise Mahalanobis Dist Score: {mah_noise_score}%\n{mah_noise_confusion}')
