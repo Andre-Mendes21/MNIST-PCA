@@ -1,4 +1,5 @@
 import struct
+import noise
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,6 +13,12 @@ def loadMNIST(images_path, labels_path):
         images = np.fromfile(imgpath, dtype=np.uint8).reshape(len(labels), 784)
 
     return images, labels
+
+
+def noisy_MNIST(images_path, labels_path):
+    X, y = loadMNIST(images_path, labels_path)
+    noise_X = noise.add_noise(X)
+    return noise_X, y
 
 
 def showMNIST(X, y, n_samples):

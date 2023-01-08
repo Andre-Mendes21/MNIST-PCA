@@ -1,5 +1,4 @@
 import MNISTData
-import noise
 import numpy as np
 import numpy.linalg as linalg
 import matplotlib.pyplot as plt
@@ -140,7 +139,7 @@ if __name__ == '__main__':
                                         'data/training/train-labels.idx1-ubyte')
     test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte', 
                                         'data/test/t10k-labels.idx1-ubyte')
-    noisy_X, noisy_y = noise.noisy_MNIST('data/test/t10k-images.idx3-ubyte', 
+    noisy_X, noisy_y = MNISTData.noisy_MNIST('data/test/t10k-images.idx3-ubyte', 
                                             'data/test/t10k-labels.idx1-ubyte')
     pca = PCA(train_X, GOAL_CONFIDENCE, 10)
     pca.pca()

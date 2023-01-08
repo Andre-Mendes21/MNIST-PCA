@@ -1,4 +1,3 @@
-import MNISTData
 import numpy as np
 
 
@@ -12,9 +11,3 @@ def add_noise(X, seed=None):
         noisy = np.clip((X[i] + noise * 0.2), 0, 1)
         noisy_images.append(noisy)
     return noisy_images
-
-
-def noisy_MNIST(images_path, labels_path):
-    X, y = MNISTData.loadMNIST(images_path, labels_path)
-    noise_X = add_noise(X)
-    return noise_X, y
