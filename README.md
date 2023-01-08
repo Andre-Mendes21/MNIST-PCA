@@ -24,7 +24,7 @@ $ python main.py
 - [x] Implement euclidean and Mahalanobis distances
 - [x] Test the model with MNIST test data
 - [x] Plotting PCA and eigen vectors
-- [ ] Test model with non-MNIST data (e.g. letters, noise, etc.)
+- [x] Test model with non-MNIST data (e.g. letters, noise, etc.)
 
 
 ## References
