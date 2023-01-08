@@ -58,6 +58,38 @@ def show_eigen_vals(pca: PCA):
     plt.show()
 
 
+def show_mean(pca: PCA):
+    plt.imshow(np.reshape(pca.mean_X, (28, 28)), cmap=plt.get_cmap('gray'))
+
+
+def show_eigen_vecs(pca: PCA):
+    fig = plt.figure()
+    cols = 3
+    rows = pca.k // cols + 1
+    for i in range(1, pca.k + 1):
+        fig.add_subplot(rows, cols, i)
+        plt.imshow(np.reshape(pca.eigen_vecs[i - 1], (28, 28)), cmap=plt.get_cmap('gray'))
+
+
+def plot_digits_3D(pca: PCA, y):
+    limit = 2500
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    scatter = ax.scatter(
+        xs=pca.coef_proj[:limit, 0],
+        ys=pca.coef_proj[:limit, 1],
+        zs=pca.coef_proj[:limit, 2],
+        c=y[:limit],
+        linewidths=0.3,
+        cmap='tab10')
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax.legend(*scatter.legend_elements(), loc='center left', bbox_to_anchor=(1.1, 0.5))
+    ax.set_xlabel('pca-one')
+    ax.set_ylabel('pca-two')
+    ax.set_zlabel('pca-three')
+
+
 def euclidean_dist(pca: PCA, coef_proj, test_coef_proj):
     return linalg.norm(coef_proj - test_coef_proj)
 
@@ -77,19 +109,20 @@ def identify(pca: PCA, test_X, train_y, dist_func):
 
 
 def scorer(test_X, test_y, dist_func):
-    preds = []; dists = []
+    preds = []; err_preds = []; dists = []
     tests_passed = 0
     for i in range(len(test_y)):
         pred, d_min = identify(pca, test_X[i], train_y, dist_func)
         preds.append(pred)
         if test_y[i] != pred:
+            err_preds.append(pred)
             dists.append(d_min)
             avg_dist = np.mean(dists)
             print(f'i: {i} dist: {d_min} avg_dist: {avg_dist} expected: {test_y[i]} got: {pred}')
         else:
             tests_passed += 1
     score = (tests_passed / len(test_y)) * 100
-    return score, preds
+    return score, preds, err_preds
 
 
 def confusion_matrix(test_y, predictions):
@@ -98,6 +131,7 @@ def confusion_matrix(test_y, predictions):
         conf_mat[test_y[i]][predictions[i]] += 1
     return conf_mat
 
+
 if __name__ == '__main__':
     train_X, train_y = MNISTData.loadMNIST('data/training/train-images.idx3-ubyte',
                                         'data/training/train-labels.idx1-ubyte')
@@ -105,12 +139,16 @@ if __name__ == '__main__':
                                         'data/test/t10k-labels.idx1-ubyte')
     test_len = len(test_X)
 
-    pca = PCA(train_X, GOAL_CONFIDENCE, 44)
+    pca = PCA(train_X, GOAL_CONFIDENCE, 10)
     pca.pca()
-    euc_score, euc_preds = scorer(test_X, test_y, euclidean_dist)
-    euc_confusion = confusion_matrix(test_y, euc_preds)
-    mah_score, mah_preds = scorer(test_X, test_y, mahalanobis_dist)
-    mah_confusion = confusion_matrix(test_y, mah_preds)
+    show_mean(pca)
+    show_eigen_vecs(pca)
+    plot_digits_3D(pca, train_y)
+    plt.show()
+    euc_score, euc_preds, err_euc_preds = scorer(test_X[:500], test_y[:500], euclidean_dist)
+    euc_confusion = confusion_matrix(test_y[:500], euc_preds)
+    mah_score, mah_preds, err_mah_preds = scorer(test_X[:500], test_y[:500], mahalanobis_dist)
+    mah_confusion = confusion_matrix(test_y[:500], mah_preds)
 
     print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n')
     print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}')
