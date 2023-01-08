@@ -109,13 +109,12 @@ def identify(pca: PCA, test_X, train_y, dist_func):
 
 
 def scorer(test_X, test_y, dist_func):
-    preds = []; err_preds = []; dists = []
+    preds = []; dists = []
     tests_passed = 0
     for i in range(len(test_y)):
         pred, d_min = identify(pca, test_X[i], train_y, dist_func)
         preds.append(pred)
         if test_y[i] != pred:
-            err_preds.append(pred)
             dists.append(d_min)
             avg_dist = np.mean(dists)
             print(f'i: {i} dist: {d_min} avg_dist: {avg_dist} expected: {test_y[i]} got: {pred}')
