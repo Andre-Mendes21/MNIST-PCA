@@ -121,7 +121,7 @@ def scorer(test_X, test_y, dist_func):
         else:
             tests_passed += 1
     score = (tests_passed / len(test_y)) * 100
-    return score, preds, err_preds
+    return score, preds
 
 
 def confusion_matrix(test_y, predictions):
