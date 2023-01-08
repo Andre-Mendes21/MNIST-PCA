@@ -17,7 +17,10 @@ python main.py
 - [x] Reading data from MNIST Dataset
 - [x] Define the principal components of the data
 - [x] Implement euclidean and Mahalanobis distances
-- [ ] Test the model  
+- [x] Test the model with MNIST test data
+- [ ] Test model with non-MNIST data (e.g. letters, noise, etc.)
+
+
 ## References
 - http://colah.github.io/posts/2014-10-Visualizing-MNIST/
 - http://www.cs.otago.ac.nz/cosc453/student_tutorials/principal_components.pdf
