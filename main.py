@@ -140,9 +140,8 @@ if __name__ == '__main__':
                                         'data/training/train-labels.idx1-ubyte')
     test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte', 
                                         'data/test/t10k-labels.idx1-ubyte')
-    noisy_X, noisy_y = noise.noisey_MNIST('data/test/t10k-images.idx3-ubyte', 
+    noisy_X, noisy_y = noise.noisy_MNIST('data/test/t10k-images.idx3-ubyte', 
                                             'data/test/t10k-labels.idx1-ubyte')
-    MNISTData.showMNIST(noisy_X[10:], noisy_y[10:], 10)
     pca = PCA(train_X, GOAL_CONFIDENCE, 10)
     pca.pca()
     show_mean(pca)
