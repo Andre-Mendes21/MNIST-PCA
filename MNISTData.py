@@ -26,14 +26,13 @@ def showMNIST(X, y, n_samples):
     images = X[:n_samples]
     labels = y[:n_samples]
 
-    num_col = 4
-    num_row = n_samples//num_col + 1
-    fig, axes = plt.subplots(num_row, num_col)
-    for i in range(n_samples):
-        ax = axes[i // num_col, i % num_col]
-        ax.imshow(images[i].reshape(28, 28), cmap='gray')
-        ax.set_title('Label: {}'.format(labels[i]))
-        ax.axis('off')
+    num_col = 3
+    num_row = n_samples // num_col + 1
+    fig = plt.figure()
+    for i in range(1, n_samples + 1):
+        ax = fig.add_subplot(num_row, num_col, i)
+        plt.imshow(images[i - 1].reshape(28, 28), cmap='gray')
+        ax.set_title('Label: {}'.format(labels[i - 1]))
     plt.tight_layout()
     plt.show()
 
