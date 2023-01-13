@@ -11,7 +11,7 @@ Uncompress the files in the `/data/test` and `/data/training` then run from the 
 ```console
 $ python -m venv .env
 $ source .env/Scripts/activate
-$ pip install numpy matplotlib
+$ pip install numpy matplotlib scikit-images
 ```
 
 ## Usage
