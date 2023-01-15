@@ -17,8 +17,7 @@ def loadMNIST(images_path, labels_path):
 
 def noisy_MNIST(images_path, labels_path):
     X, y = loadMNIST(images_path, labels_path)
-    noise_X = noise.add_noise(X)
-    noise_X = np.array(noise_X)
+    noise_X = np.array(noise.add_noise(X))
     return noise_X, y
 
 
