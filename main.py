@@ -1,51 +1,11 @@
 import MNISTData
+import PCA
+
 import numpy as np
 import numpy.linalg as linalg
 import matplotlib.pyplot as plt
 
-GOAL_CONFIDENCE = 0.75
-
-
-class PCA:
-
-    def __init__(self, X, goal_confidence, k=None):
-        self.X = X
-        self.X_len = len(self.X)
-        self.goal_confidence = goal_confidence
-        self.k = k
-
-    def __find_elbow(self, trace):
-        confidence = 0.0
-        k = 0
-        while confidence < self.goal_confidence:
-            confidence += self.all_eigen_vals[k] / trace
-            k += 1
-        return k, confidence
-
-    def __calc_confidence(self, trace):
-        confidence = 0
-        for i in range(self.k):
-            confidence += self.all_eigen_vals[i] / trace
-        return confidence
-
-    def pca(self):
-        self.mean_X = np.mean(self.X, 0)
-        centred_X = self.X - self.mean_X
-        _, singular_values, self.v = linalg.svd(centred_X, full_matrices=False)
-        self.all_eigen_vals = singular_values * singular_values
-        trace = sum(self.all_eigen_vals)
-
-        if self.k is None:
-            self.k, self.confidence = self.__find_elbow(trace)
-        else:
-            self.confidence = self.__calc_confidence(trace)
-        print(f'k: {self.k}\nconfidence: {self.confidence}')
-
-        self.eigen_vals = self.all_eigen_vals[:self.k]
-        self.inv_eigen_val = [np.double(1/val) for val in self.eigen_vals]
-        self.diag_inv_eigen_val = np.diag(self.inv_eigen_val)
-        self.eigen_vecs = self.v[:self.k]
-        self.coef_proj = np.matmul(centred_X, self.eigen_vecs.T)
+GOAL_CONFIDENCE = 0.79
 
 
 def show_eigen_vals(pca: PCA):
@@ -74,7 +34,7 @@ def show_eigen_vecs(pca: PCA):
 
 
 def plot_digits_3D(pca: PCA, y):
-    limit = 2500
+    limit = 5000
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     scatter = ax.scatter(
@@ -105,9 +65,9 @@ def mahalanobis_dist(pca: PCA, coef_proj, test_coef_proj):
 def identify(pca: PCA, test_X, train_y, dist_func):
     centred_test_X = test_X - pca.mean_X
     test_coef_prof = np.dot(centred_test_X, pca.eigen_vecs.T)
-    dist = [dist_func(pca, pca.coef_proj[i], test_coef_prof) for i in range(pca.X_len)]
-    d_min = np.min(dist)
-    d_arg_min = np.argmin(dist)
+    dists = [dist_func(pca, pca.coef_proj[i], test_coef_prof) for i in range(pca.X_len)]
+    d_min = np.min(dists)
+    d_arg_min = np.argmin(dists)
     return train_y[d_arg_min], d_min
 
 
@@ -136,16 +96,14 @@ def confusion_matrix(test_y, predictions):
 
 if __name__ == '__main__':
     train_X, train_y = MNISTData.loadMNIST('data/training/train-images.idx3-ubyte',
-                                        'data/training/train-labels.idx1-ubyte')
-    test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte', 
-                                        'data/test/t10k-labels.idx1-ubyte')
-    noisy_X, noisy_y = MNISTData.noisy_MNIST('data/test/t10k-images.idx3-ubyte', 
-                                            'data/test/t10k-labels.idx1-ubyte')
-    pca = PCA(train_X, GOAL_CONFIDENCE, 10)
+                                           'data/training/train-labels.idx1-ubyte')
+    test_X, test_y = MNISTData.loadMNIST('data/test/t10k-images.idx3-ubyte',
+                                         'data/test/t10k-labels.idx1-ubyte')
+    noisy_X, noisy_y = MNISTData.noisy_MNIST('data/test/t10k-images.idx3-ubyte',
+                                             'data/test/t10k-labels.idx1-ubyte')
+
+    pca = PCA.PCA(train_X, GOAL_CONFIDENCE)
     pca.pca()
-    show_mean(pca)
-    show_eigen_vecs(pca)
-    plot_digits_3D(pca, train_y)
 
     euc_score, euc_preds = scorer(test_X, test_y, euclidean_dist)
     euc_confusion = confusion_matrix(test_y, euc_preds)
@@ -157,7 +115,7 @@ if __name__ == '__main__':
     mah_noise_score, mah_noise_preds = scorer(noisy_X, noisy_y, mahalanobis_dist)
     mah_noise_confusion = confusion_matrix(noisy_y, mah_noise_preds)
 
-    print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n',
-          f'Noise Euclidean Dist Score: {euc_noise_score}%\n{euc_noise_confusion}\n')
-    print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}\n',
-          f'Noise Mahalanobis Dist Score: {mah_noise_score}%\n{mah_noise_confusion}')
+    print(f'Euclidean Dist Score: {euc_score}%\n{euc_confusion}\n')
+    print(f'Noise Euclidean Dist Score: {euc_noise_score}%\n{euc_noise_confusion}\n')
+    print(f'Mahalanobis Dist Score: {mah_score}%\n{mah_confusion}\n')
+    print(f'Noise Mahalanobis Dist Score: {mah_noise_score}%\n{mah_noise_confusion}')
