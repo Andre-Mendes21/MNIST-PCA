@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 GOAL_CONFIDENCE = 0.79
 
 
-def show_eigen_vals(pca: PCA):
+def show_eigen_vals(pca: PCA.PCA):
     plt.figure(figsize=(10, 10))
     t = np.arange(0, len(pca.all_eigen_vals), 1)
     plt.plot(t, pca.all_eigen_vals, 'x')
@@ -18,12 +18,12 @@ def show_eigen_vals(pca: PCA):
     plt.show()
 
 
-def show_mean(pca: PCA):
+def show_mean(pca: PCA.PCA):
     plt.imshow(np.reshape(pca.mean_X, (28, 28)), cmap=plt.get_cmap('gray'))
     plt.show()
 
 
-def show_eigen_vecs(pca: PCA):
+def show_eigen_vecs(pca: PCA.PCA):
     fig = plt.figure()
     cols = 3
     rows = pca.k // cols + 1
@@ -33,7 +33,7 @@ def show_eigen_vecs(pca: PCA):
     plt.show()
 
 
-def plot_digits_3D(pca: PCA, y):
+def plot_digits_3D(pca: PCA.PCA, y):
     limit = 5000
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -53,16 +53,16 @@ def plot_digits_3D(pca: PCA, y):
     plt.show()
 
 
-def euclidean_dist(pca: PCA, coef_proj, test_coef_proj):
+def euclidean_dist(pca: PCA.PCA, coef_proj, test_coef_proj):
     return linalg.norm(coef_proj - test_coef_proj)
 
 
-def mahalanobis_dist(pca: PCA, coef_proj, test_coef_proj):
+def mahalanobis_dist(pca: PCA.PCA, coef_proj, test_coef_proj):
     diff = coef_proj - test_coef_proj
     return np.matmul((np.matmul(pca.diag_inv_eigen_val, diff)).T, diff)
 
 
-def identify(pca: PCA, test_X, train_y, dist_func):
+def identify(pca: PCA.PCA, test_X, train_y, dist_func):
     centred_test_X = test_X - pca.mean_X
     test_coef_prof = np.dot(centred_test_X, pca.eigen_vecs.T)
     dists = [dist_func(pca, pca.coef_proj[i], test_coef_prof) for i in range(pca.X_len)]
