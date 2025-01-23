@@ -18,14 +18,6 @@ $ pip install numpy matplotlib scikit-images
 ```console
 $ python main.py
 ```
-## TODO
-- [x] Reading data from [MNIST Dataset](http://yann.lecun.com/exdb/mnist/)
-- [x] Define the principal components of the data
-- [x] Implement euclidean and Mahalanobis distances
-- [x] Test the model with MNIST test data
-- [x] Plotting PCA and eigen vectors
-- [x] Test model with non-MNIST data (e.g. letters, noise, etc.)
-
 
 ## References
 - http://yann.lecun.com/exdb/mnist/
